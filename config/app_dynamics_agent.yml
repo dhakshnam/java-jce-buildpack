@@ -14,10 +14,15 @@
 # limitations under the License.
 
 # Configuration for the AppDynamics framework
----
-version: 4.+
-repository_root: "{default.repository.root}/app-dynamics"
-default_application_name: 
-default_node_name: $(ruby -e "require 'json' ; a = JSON.parse(ENV['VCAP_APPLICATION']);
-  puts \"#{a['application_name']}:#{a['instance_index']}\"")
-default_tier_name: 
+
+#!/bin/bash -eu
+
+#Adding controller-info configurations
+APPD_CONF="-Dappdynamics.controller.hostName=${APPDYNAMICS_CONTROLLER_HOST_NAME} -Dappdynamics.controller.port=${APPDYNAMICS_CONTROLLER_PORT} -Dappdynamics.agent.applicationName=${APPDYNAMICS_AGENT_APPLICATION_NAME} -Dappdynamics.agent.tierName=${APPDYNAMICS_AGENT_TIER_NAME} -Dappdynamics.agent.nodeName=${OPENSHIFT_GEAR_UUID} -Dappdynamics.controller.ssl.enabled=${APPDYNAMICS_CONTROLLER_SSL_ENABLED}"
+
+#test if variable  is defined and not empty
+if [ -n "${APPDYNAMICS_AGENT_ACCOUNT_NAME+1}" ] && [ ! -z "${APPDYNAMICS_AGENT_ACCOUNT_NAME}" ] && [ -n "${APPDYNAMICS_AGENT_ACCOUNT_NAME+1}" ] && [ ! -z "${APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY}" ]; then
+	APPD_CONF="${APPD_CONF} -Dappdynamics.agent.accountName=${APPDYNAMICS_AGENT_ACCOUNT_NAME} -Dappdynamics.agent.accountAccessKey=${APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY}"
+fi
+
+export APPD_CONF_OPTS="${APPD_CONF}"
